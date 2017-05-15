@@ -2,6 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextWebpackPlugin = require('extract-text-webpack-plugin');
+var WebpackCleanPlugin = require('webpack-clean-plugin');
 
 module.exports = {
     entry: {
@@ -36,6 +37,15 @@ module.exports = {
                     publicPath: '/dist'
                 })
             },
+            {
+                test: /\.html$/,
+                use: [ {
+                    loader: 'html-loader',
+                    options: {
+                        minimize: true
+                    }
+                }],
+            },
             { 
                 test: /\.(png|jpe?g|gif|svg)$/, 
                 loaders: [
@@ -52,24 +62,28 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: path.join(__dirname, '', 'src', 'index.ejs'),
+            template: path.join(__dirname, '', 'src', 'index.html'),
             inject: 'body',
-            filename: 'index.ejs'
+            filename: 'index.html'
         }),
         new ExtractTextWebpackPlugin({
             filename: '[name].[chunkhash].css',
             disable: false,
             allChunks: true
         }),
+        new WebpackCleanPlugin({
+            //on: "emit",
+            path: ['./static', './dist']
+        }),
 
-        function (){
-            this.plugin('done', stats => {
-                require('fs').writeFileSync(
-                    path.join(___dirname, 'dist/manifest.json'),
-                    JSON.stringify(stats.toJson().assetsByChunkName)
-                );
-            });
-        }
+        // function (){
+        //     this.plugin('done', stats => {
+        //         require('fs').writeFileSync(
+        //             path.join(___dirname, 'dist/manifest.json'),
+        //             JSON.stringify(stats.toJson().assetsByChunkName)
+        //         );
+        //     });
+        // }
         
     ]   
 }
